@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  Sistema de monitoreo energético inteligente con detección de anomalías por Edge AI
+  Agente de gestión energetica inteligente con detección de anomalías por Edge AI
 </p>
 
 <p align="center">
@@ -19,13 +19,13 @@
 
 ## ¿Qué es WattGuard?
 
-WattGuard es un sistema de monitoreo energético de dos cajas inteligentes que mide el consumo eléctrico en tiempo real, detecta anomalías mediante NILM híbrido (Non-Intrusive Load Monitoring) y permite controlar cargas de forma remota desde una app móvil en red local.
+WattGuard es un sistema de monitoreo energético inteligente que mide el consumo eléctrico en tiempo real, detecta anomalías mediante NILM híbrido (Non-Intrusive Load Monitoring) y permite controlar cargas de forma remota desde una app móvil en red local, o desde internet (opcional).
 
 Desarrollado para el track **Qualcomm — Sustainable Power Cities HACKATHON** en Talent Land 2026.
 
 ---
 
-## Arquitectura del sistema
+## Arquitectura del sistema (para prototipo)
 
 ```
 [Caja 1 · Switch]          [Caja 2 · Nodo gemelo]
@@ -67,7 +67,7 @@ WattGuard/
 
 ---
 
-## Hardware requerido
+## Hardware utilizado (MVP)
 
 | Componente | Cantidad | Uso |
 |---|---|---|
