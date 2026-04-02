@@ -25,7 +25,7 @@ Desarrollado para el track **Qualcomm — Sustainable Power Cities HACKATHON** e
 
 ---
 
-## Arquitectura del sistema (para prototipo)
+## Arquitectura del sistema (para showcase del prototipo)
 
 ```
 [Caja 1 · Switch]          [Caja 2 · Nodo gemelo]
@@ -56,9 +56,9 @@ Desarrollado para el track **Qualcomm — Sustainable Power Cities HACKATHON** e
 ```
 WattGuard/
 ├── firmware/
-│   ├── nodo/          # Firmware ESP32-C3 (PlatformIO)
+│   ├── nodo/          # Firmware ESP32-C3
 │   └── central/       # Backend Node.js (Arduino UNO Q)
-├── frontend/          # App Ionic + Angular
+├── movile-app/          # App Ionic + Angular
 ├── docs/
 │   ├── diagramas/     # Esquemáticos, diagramas de clases y flujo
 │   └── logo.png
@@ -86,7 +86,7 @@ WattGuard/
 
 | Capa | Tecnología |
 |---|---|
-| Firmware | C++ · Arduino · PlatformIO |
+| Firmware | C++ · Arduino |
 | Comunicación | MQTT · WiFi 802.11 b/g/n |
 | Backend | Node.js · Express · SQLite |
 | IA / Detección | NILM híbrido · Edge Impulse |
@@ -99,8 +99,8 @@ WattGuard/
 ### Firmware (ESP32-C3)
 ```bash
 cd firmware/nodo
-# Abre con PlatformIO en VS Code
-# Edita include/Config.h con tu NODE_ID y credenciales WiFi
+# Abrir el directorio /nodo con el IDE de arduino
+# Edita Config.h con el NODE_ID y TYPE_ID correspondiente y credenciales WIFI
 # Build & Upload
 ```
 
