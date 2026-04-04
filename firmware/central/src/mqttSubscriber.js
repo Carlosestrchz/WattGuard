@@ -49,9 +49,9 @@ class MQTTSubscriber {
     console.log(`[MQTT] ${topic} → ${payload}`);
 
     //determinación de nodo_id según el topic
-    const isSwitch  = topic.includes('switch');
-    const isGemeloA = topic.includes('gemelo/a');
-    const isGemeloB = topic.includes('gemelo/b');
+    const isSwitch  = topic.includes('switch-proto.V1');
+    const isGemeloA = topic.includes('twin-proto.V1/a');
+    const isGemeloB = topic.includes('twin-proto.V1/b');
 
     const nodoSwitch = db.getNodoByTipo('switch');
     const nodoGemelo = db.getNodoByTipo('twin outlet');
