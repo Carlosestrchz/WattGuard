@@ -6,9 +6,9 @@ module.exports = {
     broker:  'mqtt://localhost',
     port:    1883,
     topics: [
-      'wattguard/switch/a',
-      'wattguard/gemelo/a',
-      'wattguard/gemelo/b',
+      'wattguard/switch-proto.V1/a',
+      'wattguard/twin-proto.V1/a',
+      'wattguard/twin-proto.V1/b',
     ],
   },
 
