@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient {
@@ -25,4 +28,22 @@ class ApiClient {
   }
 
   static String get defaultUrl => _defaultBaseUrl;
+
+  /// Intenta autenticarse contra el backend. Lanza excepción si falla.
+  static Future<void> login(String email, String password) async {
+    final uri = Uri.parse('$_baseUrl/auth/login');
+    final response = await http
+        .post(
+          uri,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'email': email, 'password': password}),
+        )
+        .timeout(const Duration(seconds: 10));
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      final body = jsonDecode(response.body);
+      final message = body['message'] ?? 'Credenciales incorrectas';
+      throw Exception(message);
+    }
+  }
 }

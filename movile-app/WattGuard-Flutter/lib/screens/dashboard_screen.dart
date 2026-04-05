@@ -379,6 +379,7 @@ class _ChartCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ── Cabecera ──────────────────────────────────────────────────
           Row(
             children: [
               const Text(
@@ -424,7 +425,7 @@ class _ChartCard extends StatelessWidget {
 
           if (historial.isEmpty)
             SizedBox(
-              height: 140,
+              height: 160,
               child: Center(
                 child: Text(
                   'Sin datos de historial',
@@ -434,97 +435,14 @@ class _ChartCard extends StatelessWidget {
               ),
             )
           else
-            SizedBox(
-              height: 160,
-              child: LineChart(
-                LineChartData(
-                  minY: 0,
-                  gridData: FlGridData(
-                    show: true,
-                    drawVerticalLine: false,
-                    getDrawingHorizontalLine: (_) => FlLine(
-                      color: AppTheme.border,
-                      strokeWidth: 1,
-                    ),
-                  ),
-                  borderData: FlBorderData(show: false),
-                  titlesData: FlTitlesData(
-                    topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 32,
-                        getTitlesWidget: (v, _) => Text(
-                          v.toStringAsFixed(0),
-                          style: const TextStyle(
-                              fontSize: 9,
-                              color: AppTheme.textSecondary),
-                        ),
-                      ),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        interval: (historial.length / 3)
-                            .ceilToDouble()
-                            .clamp(1, 999),
-                        getTitlesWidget: (v, _) {
-                          final idx = v.toInt();
-                          if (idx < 0 || idx >= historial.length) {
-                            return const SizedBox.shrink();
-                          }
-                          return Text(
-                            DateFormat('HH:mm')
-                                .format(historial[idx].fechaHora),
-                            style: const TextStyle(
-                                fontSize: 9,
-                                color: AppTheme.textSecondary),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  lineBarsData: porNodo.entries
-                      .toList()
-                      .asMap()
-                      .entries
-                      .map((entry) {
-                    final colorIdx = entry.key;
-                    final nodoLecturas = entry.value.value;
-                    final spots = nodoLecturas
-                        .asMap()
-                        .entries
-                        .map((e) => FlSpot(
-                              e.key.toDouble(),
-                              (e.value.wattsA ?? 0) +
-                                  (e.value.wattsB ?? 0),
-                            ))
-                        .toList();
-                    final color = colors[colorIdx % colors.length];
-                    return LineChartBarData(
-                      spots: spots,
-                      isCurved: true,
-                      color: color,
-                      barWidth: 2,
-                      dotData: const FlDotData(show: false),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        color: color.withAlpha(15),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
+            _buildChart(porNodo, colors),
 
-          // Leyenda
+          // ── Leyenda ───────────────────────────────────────────────────
           if (porNodo.isNotEmpty) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             Wrap(
               spacing: 16,
+              runSpacing: 6,
               children: porNodo.entries.toList().asMap().entries.map((e) {
                 final idx = e.key;
                 final lectura = e.value.value.first;
@@ -533,16 +451,16 @@ class _ChartCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                        width: 12,
+                        width: 16,
                         height: 3,
                         decoration: BoxDecoration(
                             color: color,
                             borderRadius: BorderRadius.circular(2))),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 6),
                     Text(
                       lectura.nombre ?? 'Nodo ${lectura.nodoId}',
                       style: const TextStyle(
-                          fontSize: 11, color: AppTheme.textSecondary),
+                          fontSize: 12, color: AppTheme.textSecondary),
                     ),
                   ],
                 );
@@ -550,6 +468,168 @@ class _ChartCard extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildChart(
+      Map<int, List<Lectura>> porNodo, List<Color> colors) {
+    // Máximo de wattsA+B en todo el historial → define el techo del eje Y
+    final maxY = historial
+        .map((l) => (l.wattsA ?? 0) + (l.wattsB ?? 0))
+        .fold<double>(0, (prev, v) => v > prev ? v : prev);
+    // Techo redondeado al múltiplo de 50 más próximo por arriba (mín. 50 W)
+    final yMax = ((maxY * 1.15 / 50).ceil() * 50.0).clamp(50.0, double.infinity);
+    final yInterval = (yMax / 4).roundToDouble().clamp(10.0, double.infinity);
+
+    // Número máximo de puntos en cualquier nodo → base para el intervalo X
+    final maxPuntos = porNodo.values
+        .map((v) => v.length)
+        .fold<int>(1, (a, b) => b > a ? b : a);
+    // Mostrar ~5 etiquetas en el eje X como máximo
+    final xInterval = (maxPuntos / 4).ceilToDouble().clamp(1.0, 999.0);
+
+    // Lista de lecturas del primer nodo (para las etiquetas de tiempo del eje X)
+    final primerasLecturas =
+        porNodo.values.isNotEmpty ? porNodo.values.first : <Lectura>[];
+
+    return SizedBox(
+      height: 210,
+      child: LineChart(
+        LineChartData(
+          minY: 0,
+          maxY: yMax,
+          clipData: const FlClipData.all(),
+          // ── Tooltip al tocar ─────────────────────────────────────────
+          lineTouchData: LineTouchData(
+            handleBuiltInTouches: true,
+            touchTooltipData: LineTouchTooltipData(
+              fitInsideHorizontally: true,
+              fitInsideVertically: true,
+              getTooltipItems: (spots) => spots.map((s) {
+                final color = colors[s.barIndex % colors.length];
+                return LineTooltipItem(
+                  '${s.y.toStringAsFixed(0)} W',
+                  TextStyle(
+                    color: color,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          // ── Cuadrícula ───────────────────────────────────────────────
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            horizontalInterval: yInterval,
+            getDrawingHorizontalLine: (_) => FlLine(
+              color: AppTheme.border,
+              strokeWidth: 1,
+            ),
+          ),
+          // ── Borde inferior e izquierdo ────────────────────────────────
+          borderData: FlBorderData(
+            show: true,
+            border: Border(
+              bottom: BorderSide(color: AppTheme.border, width: 1),
+              left: BorderSide(color: AppTheme.border, width: 1),
+            ),
+          ),
+          // ── Ejes ─────────────────────────────────────────────────────
+          titlesData: FlTitlesData(
+            topTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false)),
+            leftTitles: AxisTitles(
+              axisNameWidget: const Text(
+                'W',
+                style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textSecondary),
+              ),
+              axisNameSize: 18,
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 44,
+                interval: yInterval,
+                getTitlesWidget: (v, meta) {
+                  // Omitir la etiqueta en el límite superior para evitar recorte
+                  if (v == meta.max || v < 0) {
+                    return const SizedBox.shrink();
+                  }
+                  return SideTitleWidget(
+                    axisSide: meta.axisSide,
+                    space: 6,
+                    child: Text(
+                      v.toStringAsFixed(0),
+                      style: const TextStyle(
+                          fontSize: 11,
+                          color: AppTheme.textSecondary),
+                    ),
+                  );
+                },
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 30,
+                interval: xInterval,
+                getTitlesWidget: (v, meta) {
+                  final idx = v.toInt();
+                  if (idx < 0 || idx >= primerasLecturas.length) {
+                    return const SizedBox.shrink();
+                  }
+                  return SideTitleWidget(
+                    axisSide: meta.axisSide,
+                    space: 6,
+                    child: Text(
+                      DateFormat('HH:mm')
+                          .format(primerasLecturas[idx].fechaHora),
+                      style: const TextStyle(
+                          fontSize: 11,
+                          color: AppTheme.textSecondary),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          // ── Líneas ───────────────────────────────────────────────────
+          lineBarsData: porNodo.entries
+              .toList()
+              .asMap()
+              .entries
+              .map((entry) {
+            final colorIdx = entry.key;
+            final nodoLecturas = entry.value.value;
+            final spots = nodoLecturas
+                .asMap()
+                .entries
+                .map((e) => FlSpot(
+                      e.key.toDouble(),
+                      (e.value.wattsA ?? 0) + (e.value.wattsB ?? 0),
+                    ))
+                .toList();
+            final color = colors[colorIdx % colors.length];
+            return LineChartBarData(
+              spots: spots,
+              isCurved: true,
+              curveSmoothness: 0.3,
+              color: color,
+              barWidth: 2.5,
+              dotData: const FlDotData(show: false),
+              belowBarData: BarAreaData(
+                show: true,
+                color: color.withAlpha(25),
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }

@@ -1,15 +1,88 @@
 import 'package:flutter/material.dart';
 
+import '../core/api_client.dart';
 import '../core/app_theme.dart';
 import 'main_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
-  void _entrarOffline(BuildContext context) {
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _serverController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _serverController.text = ApiClient.baseUrl;
+  }
+
+  @override
+  void dispose() {
+    _serverController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _entrarOffline() {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => const MainScreen()),
+    );
+  }
+
+  Future<void> _iniciarSesion() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ingresa tu correo y contraseña'),
+          backgroundColor: AppTheme.warning,
+        ),
+      );
+      return;
+    }
+    setState(() => _isLoading = true);
+    try {
+      await ApiClient.login(email, password);
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const MainScreen()),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al iniciar sesión: $e'),
+          backgroundColor: AppTheme.error,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _guardarServidor() async {
+    final url = _serverController.text.trim();
+    if (url.isEmpty) return;
+    await ApiClient.setBaseUrl(url);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Servidor actualizado'),
+        backgroundColor: AppTheme.success,
+        duration: Duration(seconds: 2),
+      ),
     );
   }
 
@@ -83,8 +156,30 @@ class LoginScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
+                  // Servidor
+                  TextField(
+                    controller: _serverController,
+                    decoration: InputDecoration(
+                      labelText: 'Servidor',
+                      prefixIcon: const Icon(Icons.router_outlined,
+                          color: AppTheme.textSecondary),
+                      hintText: 'http://192.168.x.x:3000',
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.check_circle_outline,
+                            color: AppTheme.primary),
+                        tooltip: 'Guardar servidor',
+                        onPressed: _guardarServidor,
+                      ),
+                    ),
+                    keyboardType: TextInputType.url,
+                    textInputAction: TextInputAction.done,
+                    onEditingComplete: _guardarServidor,
+                  ),
+                  const SizedBox(height: 14),
+
                   // Email
                   TextField(
+                    controller: _emailController,
                     decoration: const InputDecoration(
                       labelText: 'Correo Electrónico',
                       prefixIcon: Icon(Icons.email_outlined,
@@ -92,33 +187,45 @@ class LoginScreen extends StatelessWidget {
                       hintText: 'tu@email.com',
                     ),
                     keyboardType: TextInputType.emailAddress,
-                    enabled: false, // Sin backend de auth
+                    textInputAction: TextInputAction.next,
                   ),
                   const SizedBox(height: 14),
 
                   // Contraseña
                   TextField(
-                    decoration: const InputDecoration(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
                       labelText: 'Contraseña',
-                      prefixIcon: Icon(Icons.lock_outline,
+                      prefixIcon: const Icon(Icons.lock_outline,
                           color: AppTheme.textSecondary),
-                      suffixIcon: Icon(Icons.visibility_off_outlined,
-                          color: AppTheme.textSecondary),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: AppTheme.textSecondary,
+                        ),
+                        onPressed: () =>
+                            setState(() => _obscurePassword = !_obscurePassword),
+                      ),
                     ),
-                    obscureText: true,
-                    enabled: false, // Sin backend de auth
+                    obscureText: _obscurePassword,
+                    textInputAction: TextInputAction.done,
+                    onEditingComplete: _iniciarSesion,
                   ),
                   const SizedBox(height: 24),
 
-                  // Botón Iniciar Sesión (deshabilitado)
+                  // Botón Iniciar Sesión
                   ElevatedButton(
-                    onPressed: null,
-                    style: ElevatedButton.styleFrom(
-                      disabledBackgroundColor:
-                          AppTheme.primary.withAlpha(80),
-                      disabledForegroundColor: Colors.white,
-                    ),
-                    child: const Text('Iniciar Sesión'),
+                    onPressed: _isLoading ? null : _iniciarSesion,
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Text('Iniciar Sesión'),
                   ),
                   const SizedBox(height: 12),
 
@@ -153,7 +260,7 @@ class LoginScreen extends StatelessWidget {
 
                   // ── Modo Offline ──────────────────────────────────────
                   OutlinedButton.icon(
-                    onPressed: () => _entrarOffline(context),
+                    onPressed: _entrarOffline,
                     icon: const Icon(Icons.bolt, color: AppTheme.primary),
                     label: const Text(
                       'Iniciar Modo Offline',
