@@ -1,23 +1,59 @@
-<div class=" max-w-full h-screen rounded-xl text-white text-4xl font-bold border-2 border-slate-600 flex flex-row gap-4"> 
-<div class=" basis-2/3 h-50 rounded-xl text-white text-4xl border-2 border-slate-600">
+<div class=" max-w-full h-full rounded-xl text-white text-4xl flex flex-row gap-4"> 
+  <div class=" basis-2/3 rounded-xl text-white text-4xl py-3">
     <div class="p-6 bg-white rounded-2xl shadow-xl">
-  <h2 class="text-xl font-bold text-slate-800 mb-4">Progreso del Atleta</h2>
-  <apx-chart
-    [series]="[ { name: 'Peso', data: [80, 78, 77, 79, 76] } ]"
-    [chart]="{ type: 'line', height: 350 }"
-    [xaxis]="{ categories: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie'] }">
-  </apx-chart>
-</div>
-</div>
-<div class=" max-w-80 h-screen rounded-xl text-white text-4xl font-bold border-2 border-slate-600">
-<div>
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Monitoreo de consumo</h2>
+      <div id="chart" class="w-full">
+      <apx-chart
+        [series]="chartOptions.series!"
+        [chart]="chartOptions.chart!"
+        [xaxis]="chartOptions.xaxis!"
+        [stroke]="chartOptions.stroke!"
+        [dataLabels]="chartOptions.dataLabels!"
+        [grid]="chartOptions.grid!"
+        [title]="chartOptions.title!"
+      ></apx-chart>
+      </div>
+    </div>
+  </div>
+<div class="basis-1/3 h-159 rounded-xl text-white text-3xl border-2 border-slate-600 mr-4">
+<div class="flex flex-col gap-4 p-6 
+      scrollbar-thin 
+      scrollbar-thumb-gray-700 
+      scrollbar-track-gray-800 
+      scrollbar-thumb-rounded-lg 
+      scrollbar-track-rounded-lg 
+      overflow-y-auto h-full">
+      
+  <div class=" flex border-b-3 border-slate-700 shadow-sm pb-6 justify-between text-4xl">  
     <h2>Nodo conectados</h2>
-<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">+ agregar nodo</button>
+    <button class="bg-blue-500 hover:bg-blue-700 text-white text-xl font-bold  py-2 px-4 rounded agilent-item-end">+ Agregar nodo</button>
+  </div>
+  
+  <div class="flex flex-col gap-4 p-6 bg-gray-800 rounded-xl shadow-lg">
+    <p>ID nodo: 1</p>
     <p>Consumo: 100W</p>
     <p>Temperatura: 25°C</p>
     <p>Estado: Activo</p>
+  </div>
+  <div class="flex flex-col gap-4 p-6 bg-gray-800 rounded-xl shadow-lg">
+    <p>ID nodo: 1</p>
+    <p>Consumo: 100W</p>
+    <p>Temperatura: 25°C</p>
+    <p>Estado: Activo</p>
+  </div>
+    <div class="flex flex-col gap-4 p-6 bg-gray-800 rounded-xl shadow-lg">
+    <p>ID nodo: 1</p>
+    <p>Consumo: 100W</p>
+    <p>Temperatura: 25°C</p>
+    <p>Estado: Activo</p>
+  </div>
+  <div class="flex flex-col gap-4 p-6 bg-gray-800 rounded-xl shadow-lg">
+    <p>ID nodo: 1</p>
+    <p>Consumo: 100W</p>
+    <p>Temperatura: 25°C</p>
+    <p>Estado: Activo</p>
+  </div>
+  
 </div>
 </div>
-
-
 </div>
