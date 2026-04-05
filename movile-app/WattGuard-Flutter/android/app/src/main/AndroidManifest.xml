@@ -5,6 +5,13 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Permite tráfico HTTP (no HTTPS) en red local -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- Permisos para modo offline: conexión y lectura de redes WiFi -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <!-- Requerido en Android 9+ para leer el SSID actual y escanear redes -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <application
         android:label="WattGuard"

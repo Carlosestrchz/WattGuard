@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/api_client.dart';
 import '../core/app_theme.dart';
 import 'main_screen.dart';
+import 'offline_wifi_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -33,9 +34,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _entrarOffline() {
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const MainScreen()),
+      MaterialPageRoute(builder: (_) => const OfflineWifiScreen()),
     );
   }
 
