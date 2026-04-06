@@ -26,34 +26,45 @@
       
   <div class=" flex border-b-3 border-slate-700 shadow-sm pb-6 justify-between text-4xl">  
     <h2>Nodo conectados</h2>
-    <button class="bg-blue-500 hover:bg-blue-700 text-white text-xl font-bold  py-2 px-4 rounded agilent-item-end">+ Agregar nodo</button>
+    <button (click)="toggleForm()" class="bg-blue-500 hover:bg-blue-700 text-white text-xl font-bold  py-2 px-4 rounded agilent-item-end">+ Agregar nodo</button>
   </div>
+  @if(showForm){
+  <div class="mt-4 p-4 bg-gray-700 rounded-xl shadow-lg">
+    <form [formGroup]="myForm" (ngSubmit)="onSubmit()">
+      <div class="mb-4">
+        <label class="block text-white text-sm font-bold mb-2" for="nombre">Nombre</label>
+        <input formControlName="nombre" id="nombre" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline" placeholder="Nombre del nodo">
+      </div>
+      <div class="mb-4">
+        <label class="block text-white text-sm font-bold mb-2" for="tipo">Tipo</label>
+        <input formControlName="tipo" id="tipo" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline" placeholder="Tipo del nodo">
+      </div>
+      <div class="mb-4">
+        <label class="block text-white text-sm font-bold mb-2" for="mac_address">MAC Address</label>
+        <input formControlName="mac_address" id="mac_address" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline" placeholder="MAC Address">
+      </div>
+      <div class="flex items-center justify-between">
+        <button type="submit" [disabled]="!myForm.valid" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+          Crear Nodo
+        </button>
+        <button type="button" (click)="toggleForm()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+  }
   
-  <div class="flex flex-col gap-4 p-6 bg-gray-800 rounded-xl shadow-lg">
-    <p>ID nodo: 1</p>
-    <p>Consumo: 100W</p>
-    <p>Temperatura: 25°C</p>
-    <p>Estado: Activo</p>
-  </div>
-  <div class="flex flex-col gap-4 p-6 bg-gray-800 rounded-xl shadow-lg">
-    <p>ID nodo: 1</p>
-    <p>Consumo: 100W</p>
-    <p>Temperatura: 25°C</p>
-    <p>Estado: Activo</p>
-  </div>
+  @for(itemnode of last_data_por_nodo | keyvalue ; track itemnode.key){
     <div class="flex flex-col gap-4 p-6 bg-gray-800 rounded-xl shadow-lg">
-    <p>ID nodo: 1</p>
-    <p>Consumo: 100W</p>
-    <p>Temperatura: 25°C</p>
-    <p>Estado: Activo</p>
-  </div>
-  <div class="flex flex-col gap-4 p-6 bg-gray-800 rounded-xl shadow-lg">
-    <p>ID nodo: 1</p>
-    <p>Consumo: 100W</p>
-    <p>Temperatura: 25°C</p>
-    <p>Estado: Activo</p>
-  </div>
-  
+      <p>datos del nodo: {{itemnode.value.nodo_id}}</p>
+      <p>Nombre nodo: {{getname(itemnode.value.nodo_id)}}</p>
+      <p>consumo: {{itemnode.value.watts_a}}</p>
+      <p>temperatura: {{itemnode.value.temperatura}}</p>
+      <p>Estado: {{getstatus(itemnode.value.nodo_id)==1 ? 'Activo' : 'Inactivo'}}</p>
+    </div>
+  }
+
 </div>
 </div>
 </div>

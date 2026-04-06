@@ -1,6 +1,7 @@
-import { Component, inject, ViewChild} from '@angular/core';
+import { Component, inject, OnInit, ViewChild} from '@angular/core';
 import { NgApexchartsModule } from "ng-apexcharts";
-import { Datagrafic } from '../../shared/interfaces/data';
+import { Datagrafic, Nodo, newNodo } from '../../shared/interfaces/data';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import {
   ChartComponent,
@@ -13,6 +14,7 @@ import {
   ApexGrid
 } from "ng-apexcharts";
 import { DataGraphicServiceService } from '../../shared/services/data-graphic-service.service';
+import { KeyValuePipe } from '@angular/common';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -26,14 +28,58 @@ export type ChartOptions = {
 
 @Component({
   selector: 'app-home-page',
-  imports: [NgApexchartsModule],
+  imports: [NgApexchartsModule, KeyValuePipe, ReactiveFormsModule],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.css'
 })
-export class HomePageComponent {
-  public chartOptions: Partial<ChartOptions>;
-  //private dataGrafic=inject(DataGraphicServiceService);
-  //private data:Datagrafic[]=[];
+export class HomePageComponent implements OnInit{
+  public chartOptions: Partial<ChartOptions>;//graficos
+  
+  private dataGrafic=inject(DataGraphicServiceService);//puente para las peticiones (lista de nodos, poblacion y ultimos registros)  
+  
+  private listnode:Nodo[]=[]; //lista de los nodos que ya estan en la base de datos
+  
+  private dataPorNodo: { [key: number]: Datagrafic[] } = {};//tabla dinamica tipo lista indexada por nodo id, para almacenar los daros de cada nodo, con el nodo id como indice
+  public last_data_por_nodo: { [key: number]: Datagrafic } = {};//ultimo registro de cada nodo
+
+  public newNodo: newNodo = {nombre: '',tipo: '',mac_address: ''}
+
+  private fb = inject(FormBuilder);
+  myForm: FormGroup;
+  showForm: boolean = false;
+
+  //traer la informacion de la base de datos atraves de la API
+    
+  ngOnInit(): void {
+    this.loadData();
+  }
+
+  loadData(): void {
+    this.dataGrafic.getListaNodos().subscribe(data => { 
+      this.listnode = data; //recepcion de datos
+      
+      //initialize key
+      for (const nodo of this.listnode) { //se recorre lista por nodo para poder llenar las llaves de la tabla dinamica dataPorNodo
+        if (!this.dataPorNodo[nodo.id]) {//"Si el ID del nodo NO existe se inserta como llave"
+          this.dataPorNodo[nodo.id] = []; // "se inserta el id y se agrega un arreglo vacío listo para recibir lecturas"
+        // DATO DE PRUEBA: Para que veas algo en pantalla ahora mismo
+          const datoFake: Datagrafic = {
+          nodo_id: nodo.id,
+          watts_a: 0,
+          temperatura: 25,
+          id: 0,
+          timestamp: Date.now(),
+          watts_b: null,
+          corriente_a: null,
+          corriente_b: null
+      };
+      this.dataPorNodo[nodo.id].push(datoFake);
+        }
+      }
+      this.last_data_nodo();
+      console.log(this.dataPorNodo);
+    });
+  }
 
   constructor() {
     /*
@@ -80,5 +126,56 @@ export class HomePageComponent {
         title: { text: "Tiempo (Horas)" }
       }
     };
+
+    this.myForm = this.fb.group({
+      nombre: ['', Validators.required],
+      tipo: ['', Validators.required],
+      mac_address: ['', Validators.required]
+    });
+  }
+
+  toggleForm(): void {
+    this.showForm = !this.showForm;
+  }
+
+  onSubmit(): void {
+    if (this.myForm.valid) {
+      this.dataGrafic.crearNuevoNodo(this.myForm.value).subscribe({
+        next: () => {
+          this.showForm = false;
+          this.myForm.reset();
+          this.loadData();
+        },
+        error: (err) => console.error('Error creando nodo:', err)
+      });
+    }
+  }
+
+  last_data_nodo(){    
+    // Sacamos los IDs de los nodos que ya tenemos (1, 2, etc.)
+  const ids = Object.keys(this.dataPorNodo);
+
+  for (const id of ids) {
+    const numerid = Number(id); // Object.keys siempre devuelve strings
+    const lecturas = this.dataPorNodo[numerid];
+
+    // Verificamos que el arreglo no esté vacío
+    if (lecturas && lecturas.length > 0) {
+      // Tomamos el último elemento con .at(-1) o [length - 1]
+      this.last_data_por_nodo[numerid] = lecturas[lecturas.length - 1];
+    }
+  }
+
+  return this.last_data_por_nodo;
+  }
+  
+  getname(id:number):string{
+  const nodo = this.listnode.find(n => n.id === id);
+  return nodo ? nodo.nombre : 'No found';  
+  }
+
+  getstatus(id:number):number{
+  const nodo = this.listnode.find(n => n.id === id);
+  return nodo ? nodo.activo : 0;
   }
 }

@@ -2,9 +2,10 @@
   <div class="bg-slate-800 p-8 rounded-xl shadow-lg w-full max-w-lg">
     <div class="text-center mb-6">
       <img src="WattGuard_v2_final.svg" alt="WattGuard Logo" class="h-20 mx-auto mb-4">
-      <h2 class="text-white text-3xl font-bold">Iniciar Sesión</h2>
+      <h2 class="text-white text-3xl font-bold">Crear cuenta</h2>
     </div>
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
       <div class="mb-4">
         <label for="usuario" class="block text-white text-sm font-bold mb-2">Usuario</label>
         <input
@@ -14,6 +15,7 @@
           class="shadow appearance-none border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
           placeholder="Ingresa tu usuario">
       </div>
+
       <div class="mb-4">
         <label for="correo" class="block text-white text-sm font-bold mb-2">Correo</label>
         <input
@@ -23,20 +25,33 @@
           class="shadow appearance-none border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
           placeholder="Ingresa tu correo">
       </div>
-      
-      <div *ngIf="errorMessage" class="mb-4 text-red-500 text-sm">
+
+      <div class="mb-4">
+        <label for="password" class="block text-white text-sm font-bold mb-2">Contraseña</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
+          placeholder="Ingresa tu contraseña">
+      </div>
+
+      <div *ngIf="errorMessage" class="mb-4 text-red-500 text-lg">
         {{ errorMessage }}
       </div>
-      
+
+      <div *ngIf="successMessage" class="mb-4 text-white text-lg">
+        {{ successMessage }}
+      </div>
+
       <div class="flex items-center justify-between">
         <button
           type="submit"
-          [disabled]="!loginForm.valid"
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
-          Iniciar Sesión
+          [disabled]="!registerForm.valid"
+          class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
+          Registrarse
         </button>
       </div>
-
     </form>
-</div>
+  </div>
 </div>

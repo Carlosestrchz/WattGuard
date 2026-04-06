@@ -8,6 +8,10 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/login-page/login-page.component').then(m => m.LoginPageComponent),
     },
     {
+        path:'register',
+        loadComponent: () => import('./pages/register-page/register-page.component').then(m => m.RegisterPageComponent),
+    },
+    {
         path:'',
         loadComponent: () => import('./app.component').then(m => m.AppComponent),
         children:[
@@ -25,7 +29,7 @@ export const routes: Routes = [
             },
             {
                 path:'**',
-                redirectTo: 'home'
+                redirectTo: 'login'
             }
 
         ]

@@ -1,4 +1,5 @@
 const express = require('express');
+/*const cors = require('cors');*/ // comentar ates de subir al repo
 const config  = require('./config');
 const db      = require('./database');
 const mqtt    = require('./mqttSubscriber');
@@ -6,6 +7,7 @@ const mqtt    = require('./mqttSubscriber');
 class APIServer {
   constructor() {
     this.app = express();
+    /*this.app.use(cors({origin: 'http://localhost:4200'}));*/
     this.app.use(express.json());
     this._registerRoutes();
   }

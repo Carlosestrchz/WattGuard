@@ -8,3 +8,18 @@ export interface Datagrafic{
   temperatura: number | null;
   timestamp: number;
 }
+
+export interface Nodo {
+  id: number;
+  nombre: string;
+  tipo: string;
+  mac_address: string;
+  activo: number;
+  created_at: number;
+}
+
+export interface newNodo    {
+  nombre: string;
+  tipo: string;
+  mac_address: string;
+}

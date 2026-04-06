@@ -4,7 +4,7 @@ const mqtt = require('./mqttSubscriber');
 console.log('=== WattGuard · Nodo Central v1.0.0 ===');
 
 //arranca el broker MQTT subscriber
-mqtt.connect();
+mqtt.connect(); //coemntado para desarrolloo del front end
 
 //arranca API REST
 api.start();
