@@ -11,7 +11,8 @@ import {
   ApexDataLabels,
   ApexTitleSubtitle,
   ApexStroke,
-  ApexGrid
+  ApexGrid,
+  ApexTooltip
 } from "ng-apexcharts";
 import { DataGraphicServiceService } from '../../shared/services/data-graphic-service.service';
 import { KeyValuePipe } from '@angular/common';
@@ -24,6 +25,7 @@ export type ChartOptions = {
   grid: ApexGrid;
   stroke: ApexStroke;
   title: ApexTitleSubtitle;
+  tooltip: ApexTooltip;
 };
 
 @Component({
@@ -98,6 +100,7 @@ export class HomePageComponent implements OnInit{
           }
         }
 
+        this.updateChartFromData();
         this.last_data_nodo();
         console.log(this.dataPorNodo);
       });
@@ -144,6 +147,15 @@ export class HomePageComponent implements OnInit{
           opacity: 0.5
         }
       },
+      tooltip: {
+        enabled: true,
+        y: {
+          formatter: (value) => `${value} W`,
+          title: {
+            formatter: () => 'Consumo:'
+          }
+        }
+      },
       xaxis: {
         categories: ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"],
         title: { text: "Tiempo (Horas)" }
@@ -172,6 +184,46 @@ export class HomePageComponent implements OnInit{
         error: (err) => console.error('Error creando nodo:', err)
       });
     }
+  }
+
+  private formatTimestamp(timestamp: number): string {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  private updateChartFromData(): void {
+    const timestamps = new Set<number>();
+
+    for (const nodoId of Object.keys(this.dataPorNodo)) {
+      for (const lectura of this.dataPorNodo[Number(nodoId)]) {
+        timestamps.add(lectura.timestamp);
+      }
+    }
+
+    const sortedTimestamps = Array.from(timestamps).sort((a, b) => a - b);
+    const categories = sortedTimestamps.map(ts => this.formatTimestamp(ts));
+
+    const series = this.listnode.map(nodo => {
+      const valuesByTimestamp = new Map<number, number | null>();
+      for (const lectura of this.dataPorNodo[nodo.id]) {
+        valuesByTimestamp.set(lectura.timestamp, lectura.watts_a ?? 0);
+      }
+
+      const data = sortedTimestamps.map(ts => valuesByTimestamp.has(ts) ? valuesByTimestamp.get(ts) ?? null : null);
+      return {
+        name: nodo.nombre || `Nodo ${nodo.id}`,
+        data
+      };
+    });
+
+    this.chartOptions = {
+      ...this.chartOptions,
+      series,
+      xaxis: {
+        ...this.chartOptions.xaxis,
+        categories
+      }
+    };
   }
 
   last_data_nodo(){    
