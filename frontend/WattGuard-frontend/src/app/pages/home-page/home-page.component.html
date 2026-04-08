@@ -1,0 +1,23 @@
+<div class=" max-w-full h-screen rounded-xl text-white text-4xl font-bold border-2 border-slate-600 flex flex-row gap-4"> 
+<div class=" basis-2/3 h-50 rounded-xl text-white text-4xl border-2 border-slate-600">
+    <div class="p-6 bg-white rounded-2xl shadow-xl">
+  <h2 class="text-xl font-bold text-slate-800 mb-4">Progreso del Atleta</h2>
+  <apx-chart
+    [series]="[ { name: 'Peso', data: [80, 78, 77, 79, 76] } ]"
+    [chart]="{ type: 'line', height: 350 }"
+    [xaxis]="{ categories: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie'] }">
+  </apx-chart>
+</div>
+</div>
+<div class=" max-w-80 h-screen rounded-xl text-white text-4xl font-bold border-2 border-slate-600">
+<div>
+    <h2>Nodo conectados</h2>
+<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">+ agregar nodo</button>
+    <p>Consumo: 100W</p>
+    <p>Temperatura: 25°C</p>
+    <p>Estado: Activo</p>
+</div>
+</div>
+
+
+</div>

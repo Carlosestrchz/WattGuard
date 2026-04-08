@@ -1,0 +1,41 @@
+<div class="bg-gray-950 min-h-screen">
+  <!-- Header fijo en la parte superior -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-sm border-b-3 border-slate-700 shadow-sm">
+    <div class="max-w-full flex items-center gap-4 px-1 py-1 mx-4 my-5 justify-between">
+      <div class="flex items-center gap-8">
+      <img src="WattGuard_v2_final.svg" alt="imagen no encontrada" class="h-30 object-contain">
+      <h1 class="text-white text-6xl font-bold">WattGuard</h1>
+      </div>
+      <nav class=" max-w-3xl rounded-xl text-white text-4xl font-bold border-3 border-blue-800 bg-slate-800 my-5 p-1 gap-4 justify-end flex-1 flex"> 
+        <a routerLink="home" routerLinkActive="bg-blue-500 text-4xl font-bold" class="px-4 py-2 rounded-md text-white/90 hover:bg-blue-600">Home</a>
+        <a routerLink="settings" class="px-8" routerLinkActive="bg-blue-500 text-4xl font-bold" class="px-4 py-2 rounded-md text-white/90 hover:bg-blue-600">Settings</a>
+        <a routerLink="Profile" class="px-8" routerLinkActive="bg-blue-500 text-4xl font-bold" class="px-4 py-2 rounded-md text-white/90 hover:bg-blue-600">Profile</a>
+        <a routerLink="#" class="px-8" routerLinkActive="bg-blue-500 text-4xl font-bold" class="px-4 py-2 rounded-md text-white/90 hover:bg-blue-600">Cerrar sesión</a>
+      </nav>
+    </div>
+  </header>
+  
+  <!-- Contenido central con scroll propio (con padding para evitar header y footer) -->
+  <main class="pt-6 pb-16">
+    <div class="flex-1 overflow-y-auto mt-20 ">
+      <router-outlet />
+    </div>
+  </main>
+    
+  <!-- Footer fijo en la parte inferior -->
+  <footer class="fixed bottom-0 left-0 right-0 z-50 bg-gray-950 backdrop-blur-sm border-t border-slate-700 shadow-sm">
+    <div class="border-t-2 border-slate-500 p-4">
+      <div class="text-white text-lg flex flex-row justify-between">
+        <p >
+          WATTGUARD DASHBOARD
+        </p>
+        <p>
+          WATTGUARD © 2025
+        </p>
+        <p>
+          Copyright Ptivacy contact
+        </p>
+      </div>
+    </div>
+    </footer>
+</div>
