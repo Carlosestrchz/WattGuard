@@ -15,13 +15,13 @@
           placeholder="Ingresa tu usuario">
       </div>
       <div class="mb-4">
-        <label for="correo" class="block text-white text-sm font-bold mb-2">Correo</label>
+        <label for="password" class="block text-white text-sm font-bold mb-2">Contraseña</label>
         <input
-          type="email"
-          id="correo"
-          formControlName="correo"
+          type="password"
+          id="password"
+          formControlName="password"
           class="shadow appearance-none border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline"
-          placeholder="Ingresa tu correo">
+          placeholder="Ingresa tu contraseña">
       </div>
       
       <div *ngIf="errorMessage" class="mb-4 text-red-500 text-sm">

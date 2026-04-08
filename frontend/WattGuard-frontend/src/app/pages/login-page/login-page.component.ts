@@ -17,24 +17,22 @@ export class LoginPageComponent {
 
   loginForm: FormGroup;
   errorMessage: string = '';
-  showmessage:boolean=false;
 
   constructor() {
     this.loginForm = this.fb.group({
       usuario: ['', Validators.required],
-      correo: ['', [Validators.required, Validators.email]]
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
   onSubmit() {
     if (this.loginForm.valid) {
-      const { usuario, correo } = this.loginForm.value;
-      if (usuario === 'admin' && correo === 'admin@wattguard.com') {
+      const { usuario, password } = this.loginForm.value;
+      if (usuario === 'admin' && password === 'admin123') {
         this.auth.login();
         this.router.navigate(['/home']);
       } else {
         this.errorMessage = 'Credenciales incorrectas. Inténtalo de nuevo.';
-        this.showmessage=true;
       }
     }
   }

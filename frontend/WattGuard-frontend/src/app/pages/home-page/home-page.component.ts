@@ -62,22 +62,45 @@ export class HomePageComponent implements OnInit{
       for (const nodo of this.listnode) { //se recorre lista por nodo para poder llenar las llaves de la tabla dinamica dataPorNodo
         if (!this.dataPorNodo[nodo.id]) {//"Si el ID del nodo NO existe se inserta como llave"
           this.dataPorNodo[nodo.id] = []; // "se inserta el id y se agrega un arreglo vacío listo para recibir lecturas"
-        // DATO DE PRUEBA: Para que veas algo en pantalla ahora mismo
-          const datoFake: Datagrafic = {
-          nodo_id: nodo.id,
-          watts_a: 0,
-          temperatura: 25,
-          id: 0,
-          timestamp: Date.now(),
-          watts_b: null,
-          corriente_a: null,
-          corriente_b: null
-      };
-      this.dataPorNodo[nodo.id].push(datoFake);
         }
       }
-      this.last_data_nodo();
-      console.log(this.dataPorNodo);
+
+      // Ahora obtener las lecturas reales del backend
+      this.dataGrafic.getGraphicData().subscribe(lecturas => {
+        // Limpiar los datos anteriores
+        for (const nodo of this.listnode) {
+          this.dataPorNodo[nodo.id] = [];
+        }
+
+        // Agrupar las lecturas por nodo_id
+        for (const lectura of lecturas) {
+          if (this.dataPorNodo[lectura.nodo_id]) {
+            this.dataPorNodo[lectura.nodo_id].push(lectura);
+          }
+        }
+
+        // Si algún nodo no tiene lecturas, agregar un dato fake para mostrar algo
+        for (const nodo of this.listnode) {
+          if (this.dataPorNodo[nodo.id].length === 0) {
+            const datoFake: Datagrafic = {
+              nodo_id: nodo.id,
+              watts_a: 0,
+              temperatura: 25,
+              id: 0,
+              timestamp: Date.now(),
+              watts_b: null,
+              corriente_a: null,
+              corriente_b: null,
+              relay_a: null,
+              relay_b: null
+            };
+            this.dataPorNodo[nodo.id].push(datoFake);
+          }
+        }
+
+        this.last_data_nodo();
+        console.log(this.dataPorNodo);
+      });
     });
   }
 

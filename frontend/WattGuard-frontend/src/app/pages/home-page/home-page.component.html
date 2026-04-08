@@ -26,8 +26,12 @@
       
   <div class=" flex border-b-3 border-slate-700 shadow-sm pb-6 justify-between text-4xl">  
     <h2>Nodo conectados</h2>
+    <!--
     <button (click)="toggleForm()" class="bg-blue-500 hover:bg-blue-700 text-white text-xl font-bold  py-2 px-4 rounded agilent-item-end">+ Agregar nodo</button>
+    -->
   </div>
+
+  <!--
   @if(showForm){
   <div class="mt-4 p-4 bg-gray-700 rounded-xl shadow-lg">
     <form [formGroup]="myForm" (ngSubmit)="onSubmit()">
@@ -53,11 +57,13 @@
       </div>
     </form>
   </div>
-  }
+  }-->
   
   @for(itemnode of last_data_por_nodo | keyvalue ; track itemnode.key){
     <div class="flex flex-col gap-4 p-6 bg-gray-800 rounded-xl shadow-lg">
-      <p>datos del nodo: {{itemnode.value.nodo_id}}</p>
+      <p>datos del nodo: {{itemnode.value.nodo_id}}
+        <button class=""></button>
+      </p>
       <p>Nombre nodo: {{getname(itemnode.value.nodo_id)}}</p>
       <p>consumo: {{itemnode.value.watts_a}}</p>
       <p>temperatura: {{itemnode.value.temperatura}}</p>

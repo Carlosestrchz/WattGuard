@@ -22,12 +22,12 @@ export class DataGraphicServiceService {
   crearNuevoNodo(nodo: newNodo): Observable<any> {
     return this.http.post(`${this.apiUrl}/nodos`, nodo);
   }
-  /*
+  
   getGraphicData(): Observable<Datagrafic[]> {
     return this.http.get<Datagrafic[]>(`${this.apiUrl}/lecturas`);
   }
 
   getUltimosRegistros(): Observable<Datagrafic[]> {
     return this.http.get<Datagrafic[]>(`${this.apiUrl}/lecturas`);
-  }*/
+  }
 }
