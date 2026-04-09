@@ -1,10 +1,11 @@
-import { Component, inject, OnInit, ViewChild} from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgApexchartsModule } from "ng-apexcharts";
 import { Datagrafic, Nodo, newNodo } from '../../shared/interfaces/data';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { interval, switchMap } from 'rxjs';
 
 import {
-  ChartComponent,
   ApexAxisChartSeries,
   ApexChart,
   ApexXAxis,
@@ -38,11 +39,13 @@ export class HomePageComponent implements OnInit{
   public chartOptions: Partial<ChartOptions>;//graficos
   
   private dataGrafic=inject(DataGraphicServiceService);//puente para las peticiones (lista de nodos, poblacion y ultimos registros)  
+  private destroyRef = inject(DestroyRef);
   
   private listnode:Nodo[]=[]; //lista de los nodos que ya estan en la base de datos
   
   private dataPorNodo: { [key: number]: Datagrafic[] } = {};//tabla dinamica tipo lista indexada por nodo id, para almacenar los daros de cada nodo, con el nodo id como indice
   public last_data_por_nodo: { [key: number]: Datagrafic } = {};//ultimo registro de cada nodo
+  private pollingStarted = false;
 
   public newNodo: newNodo = {nombre: '',tipo: '',mac_address: ''}
 
@@ -80,6 +83,7 @@ export class HomePageComponent implements OnInit{
             this.dataPorNodo[lectura.nodo_id].push(lectura);
           }
         }
+        console.log('Lecturas agrupadas por nodo:', this.dataPorNodo);
 
         // Si algún nodo no tiene lecturas, agregar un dato fake para mostrar algo
         for (const nodo of this.listnode) {
@@ -102,6 +106,7 @@ export class HomePageComponent implements OnInit{
 
         this.updateChartFromData();
         this.last_data_nodo();
+        this.startLatestReadingsPolling();
         console.log(this.dataPorNodo);
       });
     });
@@ -226,6 +231,46 @@ export class HomePageComponent implements OnInit{
     };
   }
 
+  private startLatestReadingsPolling(): void {
+    if (this.pollingStarted) {
+      return;
+    }
+
+    this.pollingStarted = true;
+
+    interval(5000)
+      .pipe(
+        switchMap(() => this.dataGrafic.getUltimaLectura()),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (ultimasLecturas) => {
+          this.mergeLatestReadings(ultimasLecturas);
+          this.updateChartFromData();
+          this.last_data_nodo();
+        },
+        error: (err) => console.error('Error obteniendo ultimas lecturas:', err)
+      });
+  }
+
+  private mergeLatestReadings(ultimasLecturas: Datagrafic[]): void {
+    for (const lectura of ultimasLecturas) {
+      if (!this.dataPorNodo[lectura.nodo_id]) {
+        this.dataPorNodo[lectura.nodo_id] = [];
+      }
+
+      const lecturasNodo = this.dataPorNodo[lectura.nodo_id];
+      const existingIndex = lecturasNodo.findIndex(item => item.id === lectura.id);
+
+      if (existingIndex >= 0) {
+        lecturasNodo[existingIndex] = lectura;
+      } else {
+        lecturasNodo.push(lectura);
+        lecturasNodo.sort((a, b) => a.timestamp - b.timestamp);
+      }
+    }
+  }
+
   last_data_nodo(){    
     // Sacamos los IDs de los nodos que ya tenemos (1, 2, etc.)
   const ids = Object.keys(this.dataPorNodo);
@@ -252,5 +297,28 @@ export class HomePageComponent implements OnInit{
   getstatus(id:number):number{
   const nodo = this.listnode.find(n => n.id === id);
   return nodo ? nodo.activo : 0;
+  }
+
+  //cambiar el estado del nodo de activo/inactivo mediante el uso del id frl nodo y atraves del servicio mandarcelo al backend
+  changestatus(nodo_id: number) {
+    const nodo = this.listnode.find(n => n.id === nodo_id);
+
+    if (!nodo) {
+      console.error('No se encontró el nodo');
+      return;
+    }
+
+    const nuevoEstado = nodo.activo === 1 ? 0 : 1;
+
+    this.dataGrafic.cambiarEstadoNodo(nodo.id, nuevoEstado).subscribe({
+      next: (response) => {
+        console.log('Estado actualizado:', response);
+        nodo.activo = nuevoEstado;
+      },
+      error: (err) => {
+        console.error('Error al cambiar estado:', err);
+        alert('Error al cambiar estado del nodo');
+      },
+    });
   }
 }

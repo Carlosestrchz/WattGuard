@@ -7,7 +7,7 @@ const mqtt    = require('./mqttSubscriber');
 class APIServer {
   constructor() {
     this.app = express();
-//    this.app.use(cors({origin: 'http://localhost:4200'}));
+  //this.app.use(cors({origin: 'http://localhost:4200'}));
     this.app.use(express.json());
     this._registerRoutes();
   }
@@ -27,15 +27,23 @@ class APIServer {
       const result = db.createNodo({ nombre, tipo, mac_address });
       res.status(201).json({ id: result.lastInsertRowid });
     });
+    
+    //POST /api/nodos/:id/estado - Cambiar estado activo del nodo
+    r.post('/api/nodos/:id/estado', (req, res) => {
+      const { activo } = req.body;
+      const id = parseInt(req.params.id);
 
-    /*
-    //POST
-    r.post('/api/nodos', (req, res) => {
-      const { relay } = req.body;
-      if (!nombre || !tipo) return res.status(400).json({ error: 'nombre y tipo requeridos' });
-      const result = db.createNodo({ nombre, tipo, mac_address });
-      res.status(201).json({ id: result.lastInsertRowid });
-    });*/
+      if (activo === undefined) {
+        return res.status(400).json({ error: 'estado activo requerido' });
+      }
+
+      const result = db.updateNodoActivo(id, activo ? 1 : 0);
+      if (result.changes === 0) {
+        return res.status(404).json({ error: 'Nodo no encontrado' });
+      }
+
+      res.json({ ok: true, id, activo: activo ? 1 : 0 });
+    });
 
     /*GET /api/estado
     Última lectura de cada canal

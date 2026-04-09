@@ -82,22 +82,6 @@ class DatabaseModule {
         ('admin', 'admin@wattguard.com', 'admin123'),  -- Cambia la contraseña por algo seguro
         ('usuario1', 'usuario1@example.com', 'password123');
 
-        --datos de prueba
-        -- Lecturas de prueba para nodo 1 (Switch principal)
-        INSERT OR IGNORE INTO lecturas (nodo_id, corriente_a, watts_a, corriente_b, watts_b, temperatura, relay_a, relay_b, timestamp) VALUES
-          (1, 0.5, 60, null, null, 24.5, 1, 0, strftime('%s','now','-4 hours')),
-          (1, 0.8, 100, null, null, 25.2, 1, 0, strftime('%s','now','-3 hours')),
-          (1, 0.3, 40, null, null, 23.8, 0, 0, strftime('%s','now','-2 hours')),
-          (1, 1.2, 150, null, null, 26.1, 1, 0, strftime('%s','now','-1 hours')),
-          (1, 0.6, 75, null, null, 24.9, 1, 0, strftime('%s','now'));
-
-        -- Lecturas de prueba para nodo 2 (Nodo gemelo)
-        INSERT OR IGNORE INTO lecturas (nodo_id, corriente_a, watts_a, corriente_b, watts_b, temperatura, relay_a, relay_b, timestamp) VALUES
-          (2, 0.4, 50, 0.2, 25, 23.5, 1, 0, strftime('%s','now','-4 hours')),
-          (2, 0.7, 90, 0.5, 60, 24.8, 1, 1, strftime('%s','now','-3 hours')),
-          (2, 0.2, 25, 0.1, 12, 22.9, 0, 0, strftime('%s','now','-2 hours')),
-          (2, 1.0, 125, 0.8, 100, 25.7, 1, 1, strftime('%s','now','-1 hours')),
-          (2, 0.5, 65, 0.3, 38, 24.2, 1, 0, strftime('%s','now'));
     `);
   }
 
@@ -140,7 +124,7 @@ class DatabaseModule {
 
   //nodos
   getNodos() {
-    return this.db.prepare('SELECT * FROM nodos WHERE activo = 1').all();
+    return this.db.prepare('SELECT * FROM nodos').all();
   }
 
   getNodoByTipo(tipo) {
@@ -219,6 +203,13 @@ class DatabaseModule {
   deleteUsuario(id) {
     return this.db.prepare('UPDATE usuarios SET activo = 0 WHERE id = ?').run(id);
   }
+
+  //actualizar estado activo del nodo
+  updateNodoActivo(id, activo) {
+  return this.db.prepare(
+    'UPDATE nodos SET activo = ? WHERE id = ?'
+  ).run(activo, id);
+}
 
 }
 

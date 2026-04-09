@@ -30,4 +30,12 @@ export class DataGraphicServiceService {
   getUltimosRegistros(): Observable<Datagrafic[]> {
     return this.http.get<Datagrafic[]>(`${this.apiUrl}/lecturas`);
   }
+
+  cambiarEstadoNodo(id: number, activo: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/nodos/${id}/estado`, { activo });
+  }
+
+  getUltimaLectura(): Observable<Datagrafic[]> {
+    return this.http.get<Datagrafic[]>(`${this.apiUrl}/estado`);
+  }
 }
