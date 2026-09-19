@@ -1,7 +1,0 @@
-{
-  "name": "WattGuard",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "angular-standalone"
-}
